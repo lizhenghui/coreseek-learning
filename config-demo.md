@@ -2,14 +2,14 @@
 
 ### 1. 配置用的数据库表
 ```
-在数据库中创建表统计
+创建搜索统计表
 CREATE TABLE `sph_search_counter` (
   `counter_id` int(11) NOT NULL,
   `max_update_time` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`counter_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-实体表为视频表(略)
+创建实体表略
 ```
 ### 2. 配置文件示例
 
@@ -26,14 +26,14 @@ source src_search_9312
 
     sql_query_pre   = SET NAMES utf8
     sql_query_pre   = REPLACE INTO sph_search_counter SELECT 9312, MAX(update_time) FROM fm_search
-    sql_query       = SELECT id,name,alias,channel,director,actor,category,tag,score,disable \
-                      FROM fm_search WHERE update_time<=(SELECT max_update_time FROM sph_search_counter WHERE counter_id=9312)
-	#声明过滤熟悉
+    sql_query       = SELECT id,name,alias,channel,director,actor,category,tag,score,disable FROM fm_search \
+    				WHERE update_time<=(SELECT max_update_time FROM sph_search_counter WHERE counter_id=9312)
+	#声明过滤属性
     sql_attr_uint   = disable
     sql_attr_uint   = score
     sql_attr_uint   = channel
-
 }
+
 # 主索引
 index search_9312
 {
@@ -44,13 +44,15 @@ index search_9312
     min_prefix_len  = 1
     charset_type    = zh_cn.utf-8
 }
+
 # 增量数据源
 source src_search_delta_9312:src_search_9312
 {
     sql_query_pre   = SET NAMES utf8
-    sql_query       = SELECT id,name,alias,channel,director,actor,category,tag,score,disable \
-                      FROM fm_search WHERE update_time>(SELECT max_update_time FROM sph_search_counter WHERE counter_id=9312)
+    sql_query       = SELECT id,name,alias,channel,director,actor,category,tag,score,disable FROM fm_search \
+                    WHERE update_time>(SELECT max_update_time FROM sph_search_counter WHERE counter_id=9312)
 }
+
 # 增量索引
 index search_delta_9312:search_9312
 {
@@ -61,11 +63,13 @@ index search_delta_9312:search_9312
     min_prefix_len  = 1
     charset_type    = zh_cn.utf-8
 }
+
 # 建立索引允许使用的最大内存
 indexer
 {
 	mem_limit		= 512M
 }
+
 # 配置搜索服务
 searchd
 {
