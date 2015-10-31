@@ -1,7 +1,9 @@
 ## Coreseek安装
 
 ### 1. 下载
+```
 wget http://www.coreseek.cn/uploads/csft/4.0/coreseek-4.1-beta.tar.gz 
+```
 
 ### 2. 安装mmseg3
 ```	
